@@ -37,6 +37,13 @@ if ($intent === 'pay-debt' && $merchant && $app && $type === 'debt' && $docId) {
             if ($updateStmt->execute()) {
                 // Mensaje de éxito
                 $responseMessage = ["message" => "El pago ha sido procesado correctamente'."];
+
+                // Actualizar pedido a la tabla orden con estado paid
+                $stmt = $mysqli->prepare("UPDATE orders SET status = 'paid' WHERE doc_id = ?");
+                $stmt->bind_param("s", $docId);
+                $stmt->execute();
+                $stmt->close();
+
                 
                 // Después de actualizar el estado, invocar el webhook
                 $webhookUrl = 'webhook.php'; // URL del webhook

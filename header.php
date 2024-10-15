@@ -13,7 +13,7 @@ include 'adams_pay_config.php'; // Archivo de configuración
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-<a class="navbar-brand" href="#">
+<a class="navbar-brand" href="index.php">
             <img src="img/logo.png" alt="Logo" width="30" height="30" class="d-inline-block align-top">
             Don Onofre
         </a>
@@ -26,10 +26,10 @@ include 'adams_pay_config.php'; // Archivo de configuración
                     <a class="nav-link" href="index.php">Inicio</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Acerca de</a>
+                    <a class="nav-link" href="orders.php">Pedidos Pendientes</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Contacto</a>
+                    <a class="nav-link" href="completed_orders.php">Peridos Completados</a>
                 </li>
             </ul>
         </div>

@@ -40,10 +40,20 @@ if ($mysqli->query($sql) === TRUE) {
 }
 
 
-// Crear tabla `orders`
+// Eliminar la tabla si ya existe
+$drop_sql = "DROP TABLE IF EXISTS orders";
+if ($mysqli->query($drop_sql) === TRUE) {
+    echo "Tabla 'orders' eliminada exitosamente.<br>";
+} else {
+    echo "Error al eliminar la tabla: " . $mysqli->error . "<br>";
+}
+
+// Crear la tabla de nuevo
 $sql = "
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE orders (
   id INT(11) NOT NULL AUTO_INCREMENT,
+  doc_id VARCHAR(255) NOT NULL,
+  payurl VARCHAR(255) DEFAULT NULL,
   product_id INT(11) DEFAULT NULL,
   status ENUM('pending','paid','cancelled') DEFAULT 'pending',
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp(),
@@ -51,6 +61,7 @@ CREATE TABLE IF NOT EXISTS orders (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 ";
+
 if ($mysqli->query($sql) === TRUE) {
     echo "\nTabla `orders` creada exitosamente.\n";
 } else {

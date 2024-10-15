@@ -21,6 +21,7 @@ if ($product_id > 0) {
     $result = $stmt->get_result();
     $product = $result->fetch_assoc();
 
+
     if (!$product) {
         echo "Producto no encontrado.";
         exit;
@@ -41,7 +42,7 @@ if ($product_id > 0) {
             <p class="card-text">Precio: <?php echo number_format($product['price'], 0, ',', '.'); ?> Gs.</p>
             <form action="payment_status.php" method="post">
                 <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product['id']); ?>">
-                <button type="submit" class="btn btn-success">Pagar</button>
+                <button type="submit" class="btn btn-success">Confirmar Pedido</button>
                 <a href="index.php" class="btn btn-secondary">Volver a la tienda</a>
             </form>
         </div>

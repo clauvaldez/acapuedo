@@ -84,11 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
             $stmt->close();
 
-            // Insertar en la tabla orders
-            $orderStatus = 'pending'; // Estado inicial de la orden
-            $createdAt = $ahora->format('Y-m-d H:i:s'); // Obtener la fecha y hora actual
-            $stmt = $mysqli->prepare("INSERT INTO orders (product_id, status, created_at, updated_at) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("isss", $product_id, $orderStatus, $createdAt, $createdAt); // Asegúrate de usar el tipo de dato correcto
+            // Agregar pedido a la tabla orden con estado pendiente y seguir comprando
+            $stmt = $mysqli->prepare("INSERT INTO orders (product_id, status, doc_id, payurl) VALUES (?, 'pending', ?, ?)");
+            $stmt->bind_param("iss", $product_id, $idDeuda, $payUrl); 
             $stmt->execute();
             $stmt->close();
 
@@ -100,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h4 class="alert-heading">Deuda creada exitosamente!</h4>
                     <p>Haz clic en el siguiente enlace para realizar el pago:</p>
                     <a href="' . htmlspecialchars($payUrl) . '" class="btn btn-success" target="_self">Pagar ahora</a>
+                    <a href="index.php" class="btn btn-warning" target="_self">Seguir Comprando</a>
                 </div>
             </div>';
             include 'footer.php'; // Pie de página
