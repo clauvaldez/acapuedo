@@ -1,6 +1,6 @@
 <footer class="footer bg-light text-center">
         <div class="container">
-            <span class="text-muted">© <?php echo date("Y"); ?> Don Onofre. Todos los derechos reservados.</span>
+            <span class="text-muted">© <?php echo date("Y"); ?> Don Onofre. | @clauvaldezpy.</span>
         </div>
     </footer>
 
