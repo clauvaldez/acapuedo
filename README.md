@@ -30,3 +30,4 @@
    cd don-onofre
 
 - **Ejecutar semillas de DB**: Una vez cargada las credenciales en el archivo de configuracion, ejecutar install.php
+- Desplegado en https://5f9a3653c7.lb3.amezmo.co/
