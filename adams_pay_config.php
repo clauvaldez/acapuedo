@@ -1,8 +1,8 @@
 <?php
 
 // Configuraciones de la base de datos
-define('DB_HOST', '5f9a3653c7.lb3.amezmo.co');
-define('DB_USERNAME', 'az_ssl_user');
+define('DB_HOST', 'target-opensource-5f9a3653c7');
+define('DB_USERNAME', 'az_user');
 define('DB_PASSWORD', '702014');
 define('DB_NAME', 'production_amezmo');
 
