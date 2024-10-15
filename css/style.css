@@ -7,3 +7,12 @@ footer {
     bottom: 0;
     width: 100%;
 }
+
+.badge-danger {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 50%;
+    font-size: 0.75em;
+    margin-left: 5px;
+}
