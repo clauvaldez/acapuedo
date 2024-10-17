@@ -2,54 +2,59 @@
 include 'adams_pay_config.php'; // Archivo de configuración
 
 // Obtener el contenido del POST enviado al webhook
-$docId = $_POST['doc_id'] ?? null;
-$status = $_POST['status'] ?? null;
+$postData = file_get_contents('php://input');
+$data = json_decode($postData, true);
 
-if ($docId && $status) {
-    // Conectar a la base de datos 
-    $mysqli = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
-    if ($mysqli->connect_error) {
-        error_log("Conexión fallida: " . $mysqli->connect_error);
-        http_response_code(500);
-        exit();
+// Validar si se recibió el contenido correctamente
+if (!isset($data['notify'])) {
+    error_log("Notificación no válida.");
+    http_response_code(400); // Solicitud incorrecta
+    exit();
+}
+
+// Validar el HMAC
+$secret = API_KEY; // Reemplazar con tu secreto real
+$hmacEsperado = md5('adams' . $postData . $secret);
+$hmacRecibido = $_SERVER['HTTP_X_ADAMS_NOTIFY_HASH'] ?? '';
+
+if ($hmacEsperado !== $hmacRecibido) {
+    error_log("Validación de HMAC fallida.");
+    http_response_code(403); // Prohibido
+    exit();
+}
+
+// Obtener los datos importantes
+$notify = $data['notify'];
+$type = $notify['type'];
+$docId = $data['debt']['docId'] ?? null;
+$payStatus = $data['debt']['payStatus']['status'] ?? null;
+
+// Solo procesar si es un evento 'debtStatus' y se tiene un docId
+if ($type === 'debtStatus' && $docId && $payStatus) {
+    // Si el estado es 'paid', enviar correos
+    if ($payStatus === 'paid') {
+        $toOwner = 'dueno@ejemplo.com'; // Correo del dueño del comercio
+        $toCustomer = 'cliente@ejemplo.com'; // Correo del cliente
+        $subject = 'Pago Confirmado';
+        $message = "Estimado cliente,\n\nSu pago ha sido confirmado. Gracias por su compra.\n\nAtentamente,\nEl equipo de Don Onofre.";
+        $headers = 'From: noreply@tu_dominio.com' . "\r\n" .
+                   'Reply-To: noreply@tu_dominio.com' . "\r\n" .
+                   'X-Mailer: PHP/' . phpversion();
+
+        // Enviar correo al cliente
+        mail($toCustomer, $subject, $message, $headers);
+
+        // Enviar correo al dueño del comercio
+        $messageOwner = "Se ha recibido un pago para la orden: $docId.\nEstado: $payStatus.";
+        mail($toOwner, $subject, $messageOwner, $headers);
+
+        error_log("Correos enviados correctamente.");
     }
 
-    // Actualizar el estado de la orden
-    $stmt = $mysqli->prepare("UPDATE orders SET status = ? WHERE doc_id = ?");
-    $stmt->bind_param("ss", $status, $docId);
-    
-    if ($stmt->execute()) {
-        error_log("Estado de la orden actualizado correctamente.");
-
-         // Si el estado es 'paid', enviar correos
-         if ($status === 'paid') {
-            $toOwner = 'dueno@ejemplo.com'; // Correo del dueño del comercio
-            $toCustomer = 'cliente@ejemplo.com'; // Correo del cliente
-            $subject = 'Pago Confirmado';
-            $message = "Estimado cliente,\n\nSu pago ha sido confirmado. Gracias por su compra.\n\nAtentamente,\nEl equipo de Don Onofre.";
-            $headers = 'From: noreply@tu_dominio.com' . "\r\n" .
-                       'Reply-To: noreply@tu_dominio.com' . "\r\n" .
-                       'X-Mailer: PHP/' . phpversion();
-
-            // Enviar correo al cliente
-            mail($toCustomer, $subject, $message, $headers);
-
-            // Enviar correo al dueño del comercio
-            $messageOwner = "Se ha recibido un pago para la orden: $docId.\nEstado: $status.";
-            mail($toOwner, $subject, $messageOwner, $headers);
-        }
-
-        http_response_code(200); // OK
-    } else {
-        error_log("Error al actualizar el estado: " . $stmt->error);
-        http_response_code(500); // Error interno del servidor
-    }
-
-    // Cerrar la conexión
-    $stmt->close();
-    $mysqli->close();
+    http_response_code(200); // OK
 } else {
-    error_log("Datos inválidos recibidos en el webhook.");
+    error_log("Evento no reconocido o datos faltantes.");
     http_response_code(400); // Solicitud incorrecta
 }
+
 ?>

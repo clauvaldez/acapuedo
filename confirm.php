@@ -36,41 +36,13 @@ if ($intent === 'pay-debt' && $merchant && $app && $type === 'debt' && $docId) {
             $updateStmt->bind_param("s", $docId);
             if ($updateStmt->execute()) {
                 // Mensaje de éxito
-                $responseMessage = ["message" => "El pago ha sido procesado correctamente'."];
+                $responseMessage = ["message" => "El pago ha sido procesado correctamente."];
 
-                // Actualizar pedido a la tabla orden con estado paid
+                // Actualizar pedido a la tabla orders con estado paid
                 $stmt = $mysqli->prepare("UPDATE orders SET status = 'paid' WHERE doc_id = ?");
                 $stmt->bind_param("s", $docId);
                 $stmt->execute();
                 $stmt->close();
-
-                
-                // Después de actualizar el estado, invocar el webhook
-                $webhookUrl = 'webhook.php'; // URL del webhook
-                $postData = [
-                    'doc_id' => $docId,
-                    'status' => 'paid',
-                ];
-
-                // Inicializar cURL
-                $ch = curl_init($webhookUrl);
-
-                // Configurar la solicitud POST
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Solo para evitar SSL localmente 
-                $response = curl_exec($ch);
-
-                // Comprobar si hubo errores en la solicitud
-                if (curl_errno($ch)) {
-                    error_log("Error al llamar al webhook: " . curl_error($ch));
-                } else {
-                    error_log("Webhook llamado exitosamente, respuesta: " . $response);
-                }
-
-                // Cerrar cURL
-                curl_close($ch);
 
             } else {
                 $responseMessage = ["message" => "Error al actualizar el estado del pago."];
